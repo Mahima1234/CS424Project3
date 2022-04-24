@@ -95,6 +95,7 @@ ui <- dashboardPage(
       menuItem("Dashboard", tabName = "default", icon = NULL),
       menuItem("Community Area", tabName = "CommunityArea", icon = NULL),
       menuItem("Company", tabName = "Company", icon = NULL),
+      menuItem("About", tabName = "about", icon = NULL),
       radioButtons("morkm", "Choose Miles or KM", choices = c("Miles", "KM")),
       radioButtons("time", "Choose 12-hour time or 24-hour time", choices = c("12-hour", "24-hour")),
       radioButtons("pickordrop", "Choose Pickup or Dropoff", choices = c("Pickup", "Dropoff")),
@@ -105,6 +106,14 @@ ui <- dashboardPage(
   dashboardBody(
     useShinyjs(),
     tabItems(
+      tabItem(
+        tabName = "about",
+        strong(h1("About this application")),
+        h3("Visualization made by: Mahima Nath
+This interface allows users to look through Taxi data from 2019 and see how many people took a taxi with a particular company to/from a particular Chicago community area. The data for this application is provided by the Chicago Data Portal. You may access the files here: 
+https://data.cityofchicago.org/Transportation/Taxi-Trips-2019/h4cq-z3dy
+https://data.cityofchicago.org/Facilities-Geographic-Boundaries/Boundaries-Community-Areas-current-/cauq-8yn6")
+      ),
       tabItem(
         tabName = "default",
         column(3,
@@ -398,29 +407,29 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   output$dayOfTheWeekPlot <- renderPlot({
-    ggplot(Data, aes(dayOfTheWeek)) + geom_bar(fill="steelblue")
+    ggplot(Data, aes(dayOfTheWeek)) + geom_bar(fill="steelblue") + labs(x="Day", y = "Rides")
   })
   output$dayOfTheYearPlot <- renderPlot({
-    ggplot(Data, aes(dayOfTheYear)) + geom_bar(fill="steelblue")
+    ggplot(Data, aes(dayOfTheYear)) + geom_bar(fill="steelblue") + labs(x="Date", y = "Rides")
   })
   output$hourOfDayPlot <- renderPlot({
     if(input$time == "12-hour"){
-      ggplot(Data, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
+      ggplot(Data, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
     }else{
-      ggplot(Data, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
+      ggplot(Data, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
     }
   })
   output$monthOfYearPlot <- renderPlot({
-    ggplot(Data, aes(monthOfYear)) + geom_bar(fill="steelblue")
+    ggplot(Data, aes(monthOfYear)) + geom_bar(fill="steelblue") + labs(x="Month", y = "Rides")
   })
   output$tripSeconds <- renderPlot({
-    ggplot(Data, aes(Trip_Seconds)) + geom_histogram(color = "white", fill = "steelblue")
+    ggplot(Data, aes(Trip_Seconds)) + geom_histogram(color = "white", fill = "steelblue") + labs(x="Seconds", y = "Rides")
   })
   output$tripMiles <- renderPlot({
     if(input$morkm == "Miles"){
-      ggplot(Data, aes(Trip_Miles)) + geom_histogram(color = "white", fill = "steelblue")
+      ggplot(Data, aes(Trip_Miles)) + geom_histogram(color = "white", fill = "steelblue") + labs(x="Miles", y = "Rides")
     }else{
-      ggplot(Data, aes(Trip_Km)) + geom_histogram(color = "white", fill = "steelblue")
+      ggplot(Data, aes(Trip_Km)) + geom_histogram(color = "white", fill = "steelblue") + labs(x="Kilometers", y = "Rides")
     }
   })
   
@@ -662,10 +671,6 @@ server <- function(input, output, session) {
     }
   })
   
-  
-  
-  
-  
   output$map4 <- renderLeaflet({
     if(input$pickordrop == "Pickup"){
       nrow(Data[Data$Pickup_Community_Area == i,])/nrow(Data)
@@ -784,35 +789,35 @@ server <- function(input, output, session) {
     tableTripSecondsPickupMap <- as(count(d$Trip_Seconds), "data.frame")
     
     output$dayOfTheWeekPickupMap <- renderPlot({
-      ggplot(d, aes(dayOfTheWeek)) + geom_bar(fill="steelblue")
+      ggplot(d, aes(dayOfTheWeek)) + geom_bar(fill="steelblue") + labs(x="Day", y = "Rides")
     })
     
     output$monthOfTheYearPickupMap <- renderPlot({
-      ggplot(d, aes(monthOfYear)) + geom_bar(fill="steelblue")
+      ggplot(d, aes(monthOfYear)) + geom_bar(fill="steelblue") + labs(x="Month", y = "Rides")
     })
     
     output$dayOfTheYearPickupMap <- renderPlot({
-      ggplot(d, aes(dayOfTheYear)) + geom_bar(fill="steelblue")
+      ggplot(d, aes(dayOfTheYear)) + geom_bar(fill="steelblue") + labs(x="Date", y = "Rides")
     })
     
     output$hourOfTheDayPickupMap <- renderPlot({
       if(input$time == "12-hour"){
-        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }else{
-        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }
     })
     
     output$tripSecondsPickupMap <- renderPlot({
-      ggplot(d, aes(Trip_Seconds)) + geom_histogram()
+      ggplot(d, aes(Trip_Seconds)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Seconds", y = "Rides")
     })
     
     output$tripMilesPickupMap <- renderPlot({
       if(input$morkm == "Miles"){
-        ggplot(d, aes(Trip_Miles)) + geom_histogram()
+        ggplot(d, aes(Trip_Miles)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Miles", y = "Rides")
       }
       else{
-        ggplot(d, aes(Trip_Km)) + geom_histogram()
+        ggplot(d, aes(Trip_Km)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Kilometers", y = "Rides")
       }
     })
     output$dayOfTheWeekPickupTable <- renderDataTable({
@@ -871,32 +876,32 @@ server <- function(input, output, session) {
     tableTripSecondsDropoffMap <- as(count(d$Trip_Seconds), "data.frame")
     
     output$dayOfTheWeekDropoffMap <- renderPlot({
-      ggplot(d, aes(dayOfTheWeek)) + geom_bar(fill="steelblue")
+      ggplot(d, aes(dayOfTheWeek)) + geom_bar(fill="steelblue") + labs(x="Day", y = "Rides")
     })
     output$dayOfTheYearDropoffMap <- renderPlot({
-      ggplot(d, aes(dayOfTheYear)) + geom_bar(fill="steelblue")
+      ggplot(d, aes(dayOfTheYear)) + geom_bar(fill="steelblue") + labs(x="Date", y = "Rides")
     })
     output$hourOfTheDayDropoffMap <- renderPlot({
       if(input$time == "12-hour"){
-        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides")+ scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }else{
-        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides")+ scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }
     })
     output$monthOfTheYearDropoffMap <- renderPlot({
-      ggplot(d, aes(monthOfYear)) + geom_bar(fill="steelblue")
+      ggplot(d, aes(monthOfYear)) + geom_bar(fill="steelblue") + labs(x="Month", y = "Rides")
     })
     
     output$tripSecondsDropoffMap <- renderPlot({
-      ggplot(d, aes(Trip_Seconds)) + geom_histogram()
+      ggplot(d, aes(Trip_Seconds)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Seconds", y = "Rides")
     })
     
     output$tripMilesDropoffMap <- renderPlot({
       if(input$morkm == "Miles"){
-        ggplot(d, aes(Trip_Miles)) + geom_histogram()
+        ggplot(d, aes(Trip_Miles)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Miles", y = "Rides")
       }
       else{
-        ggplot(d, aes(Trip_Km)) + geom_histogram()
+        ggplot(d, aes(Trip_Km)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Kilometers", y = "Rides")
       }
     })
     
@@ -1009,34 +1014,34 @@ server <- function(input, output, session) {
     })
     
     output$companyDayOfTheWeekPickup <- renderPlot({
-      ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue")
+      ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue") + labs(x="Day", y = "Rides")
     })
     
     output$companyDayOfTheYearPickup <- renderPlot({
-      ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue")
+      ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue") + labs(x="Date", y = "Rides")
     })
     
     output$companyHourOfTheDayPickup <- renderPlot({
       if(input$time == "12-hour"){
-        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }else{
-        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }
     })
     
     output$companyMonthOfTheYearPickup <- renderPlot({
-      ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue")
+      ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue") + labs(x="Month", y = "Rides")
     })
     
     output$companyTripSecondsPickup <- renderPlot({
-      ggplot(d2, aes(Trip_Seconds)) + geom_histogram()
+      ggplot(d2, aes(Trip_Seconds)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Seconds", y = "Rides")
     })
     
     output$companyTripMilesPickup <- renderPlot({
       if(input$morkm == "Miles"){
-        ggplot(d2, aes(Trip_Miles)) + geom_histogram()
+        ggplot(d2, aes(Trip_Miles)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Miles", y = "Rides")
       }else{
-        ggplot(d2, aes(Trip_Km)) + geom_histogram()
+        ggplot(d2, aes(Trip_Km)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Kilometers", y = "Rides")
       }
     })
     
@@ -1103,42 +1108,42 @@ server <- function(input, output, session) {
     output$companyDayOfTheWeekDropoff <- renderPlot({
       d <- Data[Data$Company == input$company,]
       d2 <- d[d$community.y == input$communityArea1,]
-      ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue")
+      ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue") + labs(x="Day", y = "Rides")
     })
     output$companyDayOfTheYearDropoff <- renderPlot({
       d <- Data[Data$Company == input$company,]
       d2 <- d[d$community.y == input$communityArea1,]
-      ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue")
+      ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue") + labs(x="Date", y = "Rides")
     })
     
     output$companyHourOfTheDayDropoff <- renderPlot({
       d <- Data[Data$Company == input$company,]
       d2 <- d[d$community.y == input$communityArea1,]
       if(input$time == "12-hour"){
-        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }else{
-        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
+        ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
       }
     })
     
     output$companyMonthOfTheYearDropoff <- renderPlot({
       d <- Data[Data$Company == input$company,]
       d2 <- d[d$community.y == input$communityArea1,]
-      ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue")
+      ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue") + labs(x="Month", y = "Rides")
     })
     output$companyTripSecondsDropoff <- renderPlot({
       d <- Data[Data$Company == input$company,]
       d2 <- d[d$community.y == input$communityArea1,]
-      ggplot(d2, aes(Trip_Seconds)) + geom_histogram()
+      ggplot(d2, aes(Trip_Seconds)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Seconds", y = "Rides")
     })
     
     output$companyTripMilesDropoff <- renderPlot({
       d <- Data[Data$Company == input$company,]
       d2 <- d[d$community.y == input$communityArea1,]
       if(input$morkm == "Miles"){
-        ggplot(d2, aes(Trip_Miles)) + geom_histogram()
+        ggplot(d2, aes(Trip_Miles)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Miles", y = "Rides")
       }else{
-        ggplot(d2, aes(Trip_Km)) + geom_histogram()
+        ggplot(d2, aes(Trip_Km)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Kilometers", y = "Rides")
       }
     })
 
@@ -1148,86 +1153,86 @@ server <- function(input, output, session) {
   output$companyDayOfTheWeekPickup <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.x == input$communityArea1,]
-    ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue")
+    ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue") + labs(x="Day", y = "Rides")
   })
   
   output$companyDayOfTheYearPickup <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.x == input$communityArea1,]
-    ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue")
+    ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue") + labs(x="Date", y = "Rides")
   })
   
   output$companyHourOfTheDayPickup <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.x == input$communityArea1,]
     if(input$time == "12-hour"){
-      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
+      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides")+ scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
     }else{
-      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
+      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
     }
   })
   
   output$companyMonthOfTheYearPickup <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.x == input$communityArea1,]
-    ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue")
+    ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue") + labs(x="Month", y = "Rides")
   })
   
   output$companyTripSecondsPickup <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.x == input$communityArea1,]
-    ggplot(d2, aes(Trip_Seconds)) + geom_histogram()
+    ggplot(d2, aes(Trip_Seconds)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Seconds", y = "Rides")
   })
   
   output$companyTripMilesPickup <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.x == input$communityArea1,]
     if(input$morkm == "Miles"){
-      ggplot(d2, aes(Trip_Miles)) + geom_histogram()
+      ggplot(d2, aes(Trip_Miles)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Miles", y = "Rides")
     }else{
-      ggplot(d2, aes(Trip_Km)) + geom_histogram()
+      ggplot(d2, aes(Trip_Km)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Kilometers", y = "Rides")
     }
   })
   
   output$companyDayOfTheWeekDropoff <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.y == input$communityArea1,]
-    ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue")
+    ggplot(d2, aes(dayOfTheWeek)) + geom_bar(fill = "steelblue") + labs(x="Day", y = "Rides")
   })
   output$companyDayOfTheYearDropoff <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.y == input$communityArea1,]
-    ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue")
+    ggplot(d2, aes(dayOfTheYear)) + geom_bar(fill = "steelblue") + labs(x="Date", y = "Rides")
   })
   
   output$companyHourOfTheDayDropoff <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.y == input$communityArea1,]
     if(input$time == "12-hour"){
-      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
+      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('12 AM', '1 AM', '2 AM', '3 AM', '4 AM', '5 AM', '6 AM', '7 AM', '8 AM', '9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM', '4 PM', '5 PM', '6 PM', '7 PM', '8 PM', '9 PM', '10 PM', '11 PM', '12 AM')) + theme(plot.title = element_text(hjust = 1, size = 10))
     }else{
-      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
+      ggplot(d2, aes(hourOfDay)) + geom_bar(fill="steelblue") + labs(x="Time", y = "Rides") + scale_x_discrete(limits = c('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23')) + theme(plot.title = element_text(hjust = 1, size = 10))
     }
   })
   
   output$companyMonthOfTheYearDropoff <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.y == input$communityArea1,]
-    ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue")
+    ggplot(d2, aes(monthOfYear)) + geom_bar(fill = "steelblue") + labs(x="Month", y = "Rides")
   })
   output$companyTripSecondsDropoff <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.y == input$communityArea1,]
-    ggplot(d2, aes(Trip_Seconds)) + geom_histogram()
+    ggplot(d2, aes(Trip_Seconds)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Seconds", y = "Rides")
   })
   
   output$companyTripMilesDropoff <- renderPlot({
     d <- Data[Data$Company == input$company,]
     d2 <- d[d$community.y == input$communityArea1,]
     if(input$morkm == "Miles"){
-      ggplot(d2, aes(Trip_Miles)) + geom_histogram()
+      ggplot(d2, aes(Trip_Miles)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Miles", y = "Rides")
     }else{
-      ggplot(d2, aes(Trip_Km)) + geom_histogram()
+      ggplot(d2, aes(Trip_Km)) + geom_histogram(fill = "steelblue", color = "white") + labs(x="Kilometers", y = "Rides")
     }
   })
   
